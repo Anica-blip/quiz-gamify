@@ -23,7 +23,7 @@ function render() {
     return;
   }
 
-  // INFO PAGE: full background, button at bottom
+  // INFO PAGE: full background, button at bottom, back button bottom left
   if (pageIdx === 1) {
     const p = QUIZ_CONFIG.introPages[1];
     renderFullscreenBgPage({
@@ -32,20 +32,21 @@ function render() {
         state.page++;
         state.quizStarted = true;
         render();
-      }} : null
+      }} : null,
+      showBack: true
     });
     return;
   }
 
-  // QUESTION PAGES: background, centered card, answer buttons, next & back at bottom left
+  // QUESTION PAGES: background, question text and transparent answer buttons, next & back
   if (state.quizStarted && pageIdx - totalIntro < totalQ) {
     const qIdx = pageIdx - totalIntro;
     const q = QUIZ_CONFIG.questions[qIdx];
-    renderQuestionCardPage(q, qIdx, pageIdx);
+    renderQuestionPage(q, qIdx, pageIdx);
     return;
   }
 
-  // RESULT PAGE: background, button at bottom, back bottom left
+  // RESULT PAGE: background, button at bottom, back button bottom left
   if (state.quizStarted && !state.completed && state.showResult) {
     const tally = {};
     state.answers.forEach(ans => {
@@ -108,44 +109,43 @@ function renderCardImageCover(p) {
 function renderFullscreenBgPage({ bg, button, showBack }) {
   app.innerHTML = `
     <div class="fullscreen-bg" style="background-image:url('${bg}');"></div>
-    ${showBack ? `<button class="back-btn" id="backBtn" title="Go Back">&#8592;</button>` : ""}
+    ${showBack ? `<button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>` : ""}
     ${button ? `<div class="fullscreen-bottom"><button class="main-btn" id="${button.id}">${button.label}</button></div>` : ""}
   `;
   if (button) $("#" + button.id).onclick = button.onClick;
   if (showBack) setupBackBtn();
 }
 
-// Questions: background, centered card, answer buttons, next & back at bottom left
-function renderQuestionCardPage(q, qIdx, pageIdx) {
+// Questions: background, question text and transparent answer buttons, next & back at bottom left
+function renderQuestionPage(q, qIdx, pageIdx) {
   app.innerHTML = `
     <div class="fullscreen-bg" style="background-image:url('${q.bg}');"></div>
-    <div class="question-card">
-      <form id="questionForm" autocomplete="off">
+    <div class="question-vertical">
+      <div class="question-text">${q.question || ""}</div>
+      <form id="questionForm" autocomplete="off" class="answers-form">
         <div class="answers">
           ${q.answers.map((a, i) =>
-            `<label class="answer-radio">
-              <input type="radio" name="answer" value="${i}" ${i===0 ? '' : ''} />
-              <span>${a.text}</span>
-            </label>`
+            `<button type="button" class="answer-btn" data-idx="${i}">${a.text}</button>`
           ).join("")}
         </div>
-        <button class="main-btn" id="nextQuestionBtn" type="submit" disabled>Next</button>
       </form>
     </div>
+    <div class="fullscreen-bottom"><button class="main-btn" id="nextQuestionBtn" type="button" disabled>Next</button></div>
     <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
   `;
 
-  // Enable next only when an answer is selected
-  const form = $("#questionForm");
+  let selected = null;
+  const answerBtns = document.querySelectorAll('.answer-btn');
   const nextBtn = $("#nextQuestionBtn");
-  form.answer && form.answer.forEach
-    ? form.answer.forEach(radio =>
-        radio.onchange = () => { nextBtn.disabled = !form.answer.value; })
-    : (form.answer.onchange = () => { nextBtn.disabled = !form.answer.value; });
-
-  form.onsubmit = (e) => {
-    e.preventDefault();
-    const selected = (form.answer && form.answer.value) || null;
+  answerBtns.forEach((btn, i) => {
+    btn.onclick = () => {
+      answerBtns.forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selected = i;
+      nextBtn.disabled = false;
+    };
+  });
+  nextBtn.onclick = () => {
     if (selected !== null) {
       state.answers[qIdx] = q.answers[selected].result;
       state.page++;
@@ -161,10 +161,9 @@ function setupBackBtn() {
   const btn = $("#backBtn");
   if (!btn) return;
   btn.onclick = () => {
-    // Go back to previous page and remove last answer if coming from a question page
+    const totalIntro = QUIZ_CONFIG.introPages.length;
     if (state.page > 0) {
-      // Handle backing up from question pages
-      const totalIntro = QUIZ_CONFIG.introPages.length;
+      // Remove last answer if coming from a question page
       if (
         state.quizStarted &&
         state.page <= totalIntro + QUIZ_CONFIG.questions.length &&
