@@ -27,22 +27,15 @@ function render() {
   // INFO PAGE: full background, button at bottom, back button bottom left
   if (pageIdx === 1) {
     const p = QUIZ_CONFIG.introPages[1];
-    renderBgScrollPage({
+    renderFullscreenBgPage({
       bg: p.bg,
-      content: `
-        <div class="content-spacer"></div>
-        <div class="scroll-bottom">
-          <button class="main-btn" id="mainBtn">${p.btn.label}</button>
-        </div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
-      `
+      button: p.btn ? { label: p.btn.label, id: "mainBtn", onClick: () => {
+        state.page++;
+        state.quizStarted = true;
+        render();
+      }} : null,
+      showBack: true
     });
-    $("#mainBtn").onclick = () => {
-      state.page++;
-      state.quizStarted = true;
-      render();
-    };
-    setupBackBtn();
     return;
   }
 
@@ -57,22 +50,19 @@ function render() {
   // GET RESULTS PAGE: after final question, before result is shown
   if (state.quizStarted && state.showGetResults) {
     const getRes = QUIZ_CONFIG.getResults;
-    renderBgScrollPage({
+    renderFullscreenBgPage({
       bg: getRes.bg,
-      content: `
-        <div class="content-spacer"></div>
-        <div class="scroll-bottom">
-          <button class="main-btn" id="getResultsBtn">${getRes.btn.label}</button>
-        </div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
-      `
+      button: getRes.btn ? {
+        label: getRes.btn.label,
+        id: "getResultsBtn",
+        onClick: () => {
+          state.showGetResults = false;
+          state.showResult = true;
+          render();
+        }
+      } : null,
+      showBack: true
     });
-    $("#getResultsBtn").onclick = () => {
-      state.showGetResults = false;
-      state.showResult = true;
-      render();
-    };
-    setupBackBtn();
     return;
   }
 
@@ -90,36 +80,14 @@ function render() {
       state.resultKey = top;
     }
     const res = QUIZ_CONFIG.resultPages[state.resultKey] || {};
-    renderBgScrollPage({
-      bg: res.bg,
-      content: `
-        <div class="result-vertical">
-          <div class="result-text">${res.resultText || ""}</div>
-        </div>
-        <div class="scroll-bottom">
-          <button class="main-btn" id="finishBtn">${res.btn.label}</button>
-        </div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
-      `
-    });
-    $("#finishBtn").onclick = () => {
-      state.completed = true;
-      state.page++;
-      render();
-    };
-    setupBackBtn();
+    renderResultPage(res);
     return;
   }
 
   // THANK YOU PAGE: background, back at bottom left
   if (state.completed) {
     const t = QUIZ_CONFIG.thankYou;
-    renderBgScrollPage({
-      bg: t.bg,
-      content: `<div class="content-spacer"></div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>`
-    });
-    setupBackBtn();
+    renderFullscreenBgPage({ bg: t.bg, button: null, showBack: true });
   }
 }
 
@@ -139,40 +107,38 @@ function renderCoverPage(p) {
   };
 }
 
-// Generic background scroll page with content
-function renderBgScrollPage({ bg, content }) {
+// Info, get results, thank you: full background, button at bottom, back at bottom left if needed
+function renderFullscreenBgPage({ bg, button, showBack }) {
   app.innerHTML = `
-    <div class="scroll-bg" style="background-image:url('${bg}');"></div>
-    <div class="scroll-contents">
-      ${content}
-    </div>
+    <div class="fullscreen-bg" style="background-image:url('${bg}');"></div>
+    ${showBack ? `<button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>` : ""}
+    ${button ? `<div class="fullscreen-bottom"><button class="main-btn" id="${button.id}">${button.label}</button></div>` : ""}
   `;
+  if (button) $("#" + button.id).onclick = button.onClick;
+  if (showBack) setupBackBtn();
 }
 
-// Questions: background, question text, transparent answer buttons, next & back at bottom left
+// Questions: background, question text and transparent answer buttons, next & back at bottom left
 function renderQuestionPage(q, qIdx) {
+  // Restore previously selected answer if navigating back
   let selected = state.answers[qIdx] !== undefined
     ? q.answers.findIndex(a => a.result === state.answers[qIdx])
     : null;
 
   app.innerHTML = `
-    <div class="scroll-bg" style="background-image:url('${q.bg}');"></div>
-    <div class="scroll-contents">
-      <div class="question-vertical">
-        <div class="question-text">${q.question || ""}</div>
-        <form id="questionForm" autocomplete="off" class="answers-form">
-          <div class="answers">
-            ${q.answers.map((a, i) =>
-              `<button type="button" class="answer-btn${selected === i ? " selected" : ""}" data-idx="${i}">${a.text}</button>`
-            ).join("")}
-          </div>
-        </form>
-      </div>
-      <div class="scroll-bottom">
-        <button class="main-btn" id="nextQuestionBtn" type="button" ${selected === null ? "disabled" : ""}>Next</button>
-      </div>
-      <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
+    <div class="fullscreen-bg" style="background-image:url('${q.bg}');"></div>
+    <div class="question-vertical">
+      <div class="question-text">${q.question || ""}</div>
+      <form id="questionForm" autocomplete="off" class="answers-form">
+        <div class="answers">
+          ${q.answers.map((a, i) =>
+            `<button type="button" class="answer-btn${selected === i ? " selected" : ""}" data-idx="${i}">${a.text}</button>`
+          ).join("")}
+        </div>
+      </form>
     </div>
+    <div class="fullscreen-bottom"><button class="main-btn" id="nextQuestionBtn" type="button" ${selected === null ? "disabled" : ""}>Next</button></div>
+    <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
   `;
 
   let currentSelected = selected;
@@ -202,6 +168,24 @@ function renderQuestionPage(q, qIdx) {
     }
   };
 
+  setupBackBtn();
+}
+
+// Result page: show result text, button at bottom, back at bottom left
+function renderResultPage(res) {
+  app.innerHTML = `
+    <div class="fullscreen-bg" style="background-image:url('${res.bg}');"></div>
+    <div class="result-vertical">
+      <div class="result-text">${res.resultText || ""}</div>
+    </div>
+    <div class="fullscreen-bottom"><button class="main-btn" id="finishBtn">${res.btn.label}</button></div>
+    <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
+  `;
+  $("#finishBtn").onclick = () => {
+    state.completed = true;
+    state.page++;
+    render();
+  };
   setupBackBtn();
 }
 
@@ -236,6 +220,3 @@ function setupBackBtn() {
       render();
     }
   };
-}
-
-render();
