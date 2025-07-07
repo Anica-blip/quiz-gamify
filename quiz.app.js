@@ -30,11 +30,13 @@ function render() {
     renderBgScrollPage({
       bg: p.bg,
       content: `
-        <div class="content-spacer"></div>
-        <div class="scroll-bottom">
-          <button class="main-btn" id="mainBtn">${p.btn.label}</button>
+        <div class="content-in-bg">
+          <div class="content-spacer"></div>
+          <div class="scroll-bottom">
+            <button class="main-btn" id="mainBtn">${p.btn.label}</button>
+          </div>
+          <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
         </div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
       `
     });
     $("#mainBtn").onclick = () => {
@@ -60,11 +62,13 @@ function render() {
     renderBgScrollPage({
       bg: getRes.bg,
       content: `
-        <div class="content-spacer"></div>
-        <div class="scroll-bottom">
-          <button class="main-btn" id="getResultsBtn">${getRes.btn.label}</button>
+        <div class="content-in-bg">
+          <div class="content-spacer"></div>
+          <div class="scroll-bottom">
+            <button class="main-btn" id="getResultsBtn">${getRes.btn.label}</button>
+          </div>
+          <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
         </div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
       `
     });
     $("#getResultsBtn").onclick = () => {
@@ -92,13 +96,15 @@ function render() {
     renderBgScrollPage({
       bg: res.bg,
       content: `
-        <div class="result-vertical">
-          <div class="result-text">${res.resultText || ""}</div>
+        <div class="content-in-bg">
+          <div class="result-vertical">
+            <div class="result-text">${res.resultText || ""}</div>
+          </div>
+          <div class="scroll-bottom">
+            <button class="main-btn" id="finishBtn">${res.btn.label}</button>
+          </div>
+          <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
         </div>
-        <div class="scroll-bottom">
-          <button class="main-btn" id="finishBtn">${res.btn.label}</button>
-        </div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
       `
     });
     $("#finishBtn").onclick = () => {
@@ -115,8 +121,10 @@ function render() {
     const t = QUIZ_CONFIG.thankYou;
     renderBgScrollPage({
       bg: t.bg,
-      content: `<div class="content-spacer"></div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>`
+      content: `<div class="content-in-bg">
+        <div class="content-spacer"></div>
+        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
+      </div>`
     });
     setupBackBtn();
   }
@@ -139,8 +147,8 @@ function renderCoverPage(p) {
 
 function renderBgScrollPage({ bg, content }) {
   app.innerHTML = `
-    <div class="scroll-bg" style="background-image:url('${bg}');"></div>
-    <div class="scroll-contents">
+    <div class="quiz-bg-container">
+      <div class="scroll-bg" style="background-image:url('${bg}');"></div>
       ${content}
     </div>
   `;
@@ -152,22 +160,24 @@ function renderQuestionPage(q, qIdx) {
     : null;
 
   app.innerHTML = `
-    <div class="scroll-bg" style="background-image:url('${q.bg}');"></div>
-    <div class="scroll-contents">
-      <div class="question-vertical">
-        <div class="question-text">${q.question || ""}</div>
-        <form id="questionForm" autocomplete="off" class="answers-form">
-          <div class="answers">
-            ${q.answers.map((a, i) =>
-              `<button type="button" class="answer-btn${selected === i ? " selected" : ""}" data-idx="${i}">${a.text}</button>`
-            ).join("")}
-          </div>
-        </form>
+    <div class="quiz-bg-container">
+      <div class="scroll-bg" style="background-image:url('${q.bg}');"></div>
+      <div class="content-in-bg">
+        <div class="question-vertical">
+          <div class="question-text">${q.question || ""}</div>
+          <form id="questionForm" autocomplete="off" class="answers-form">
+            <div class="answers">
+              ${q.answers.map((a, i) =>
+                `<button type="button" class="answer-btn${selected === i ? " selected" : ""}" data-idx="${i}">${a.text}</button>`
+              ).join("")}
+            </div>
+          </form>
+        </div>
+        <div class="scroll-bottom">
+          <button class="main-btn" id="nextQuestionBtn" type="button" ${selected === null ? "disabled" : ""}>Next</button>
+        </div>
+        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
       </div>
-      <div class="scroll-bottom">
-        <button class="main-btn" id="nextQuestionBtn" type="button" ${selected === null ? "disabled" : ""}>Next</button>
-      </div>
-      <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
     </div>
   `;
 
