@@ -15,60 +15,37 @@ function render() {
   let pageIdx = state.page;
   const totalIntro = QUIZ_CONFIG.introPages.length;
   const totalQ = QUIZ_CONFIG.questions.length;
-  const totalPages = totalIntro + totalQ + 2; // +2 for result and thank you
 
-  // COVER PAGE (card style, no back)
+  // COVER PAGE (card style, scrollable if needed)
   if (pageIdx === 0) {
     const p = QUIZ_CONFIG.introPages[0];
     renderCardImageCover(p);
     return;
   }
 
-  // INFO PAGE: full screen, button at bottom center, back at top left
+  // INFO PAGE: full background, button at bottom
   if (pageIdx === 1) {
     const p = QUIZ_CONFIG.introPages[1];
-    renderFullscreenPage({
+    renderFullscreenBgPage({
       bg: p.bg,
-      centerContent: "",
-      bottomContent: p.btn
-        ? `<button class="main-btn" id="mainBtn">${p.btn.label}</button>`
-        : "",
-      showBack: true
+      button: p.btn ? { label: p.btn.label, id: "mainBtn", onClick: () => {
+        state.page++;
+        state.quizStarted = true;
+        render();
+      }} : null
     });
-    if (p.btn) $("#mainBtn").onclick = () => {
-      state.page++;
-      state.quizStarted = true;
-      render();
-    };
     return;
   }
 
-  // QUESTION PAGES: full screen, quiz answer buttons centered, back at top left
+  // QUESTION PAGES: background, centered card, answer buttons, next & back at bottom left
   if (state.quizStarted && pageIdx - totalIntro < totalQ) {
     const qIdx = pageIdx - totalIntro;
     const q = QUIZ_CONFIG.questions[qIdx];
-    let answersHtml = q.answers
-      .map(
-        (a, i) => `<button class="answer-btn" data-idx="${i}">${a.text}</button>`
-      )
-      .join("");
-    renderFullscreenPage({
-      bg: q.bg,
-      centerContent: `<div class="answers">${answersHtml}</div>`,
-      bottomContent: "",
-      showBack: true
-    });
-    document.querySelectorAll(".answer-btn").forEach((btn, i) => {
-      btn.onclick = () => {
-        state.answers.push(q.answers[i].result);
-        state.page++;
-        render();
-      };
-    });
+    renderQuestionCardPage(q, qIdx, pageIdx);
     return;
   }
 
-  // RESULT PAGE: full screen, button at bottom center, back at top left
+  // RESULT PAGE: background, button at bottom, back bottom left
   if (state.quizStarted && !state.completed && state.showResult) {
     const tally = {};
     state.answers.forEach(ans => {
@@ -79,19 +56,17 @@ function render() {
     );
     state.resultKey = top;
     const result = QUIZ_CONFIG.results[top] || {};
-    renderFullscreenPage({
+    renderFullscreenBgPage({
       bg: result.bg,
-      centerContent: "",
-      bottomContent: result.btn
-        ? `<button class="main-btn" id="finishBtn">${result.btn.label}</button>`
-        : "",
+      button: result.btn
+        ? { label: result.btn.label, id: "finishBtn", onClick: () => {
+            state.completed = true;
+            state.page++;
+            render();
+          } }
+        : null,
       showBack: true
     });
-    if (result.btn) $("#finishBtn").onclick = () => {
-      state.completed = true;
-      state.page++;
-      render();
-    };
     return;
   }
 
@@ -106,18 +81,20 @@ function render() {
     return;
   }
 
-  // THANK YOU PAGE: full screen, no button, back at top left
+  // THANK YOU PAGE: background, back at bottom left
   if (state.completed) {
     const t = QUIZ_CONFIG.thankYou;
-    renderFullscreenPage({ bg: t.bg, centerContent: "", bottomContent: "", showBack: true });
+    renderFullscreenBgPage({ bg: t.bg, button: null, showBack: true });
   }
 }
 
-// Cover: image in card, button below
+// Cover: card style, scrollable
 function renderCardImageCover(p) {
   app.innerHTML = `
-    <div class="cover-wrapper">
-      <img class="cover-img" src="${p.img}" alt="cover"/>
+    <div class="cover-outer">
+      <div class="cover-wrapper">
+        <img class="cover-img" src="${p.img}" alt="cover"/>
+      </div>
       ${p.btn ? `<button class="main-btn" id="nextBtn">${p.btn.label}</button>` : ""}
     </div>
   `;
@@ -127,35 +104,86 @@ function renderCardImageCover(p) {
   };
 }
 
-// Fullscreen image, center or bottom content, optional back button
-function renderFullscreenPage({ bg, centerContent, bottomContent, showBack }) {
+// Info, result, thank you: full background, button at bottom, back at bottom left if needed
+function renderFullscreenBgPage({ bg, button, showBack }) {
   app.innerHTML = `
     <div class="fullscreen-bg" style="background-image:url('${bg}');"></div>
     ${showBack ? `<button class="back-btn" id="backBtn" title="Go Back">&#8592;</button>` : ""}
-    <div class="fullscreen-center">${centerContent || ""}</div>
-    <div class="fullscreen-bottom">${bottomContent || ""}</div>
+    ${button ? `<div class="fullscreen-bottom"><button class="main-btn" id="${button.id}">${button.label}</button></div>` : ""}
   `;
-  if (showBack) {
-    $("#backBtn").onclick = () => {
-      // Only allow going back if not on first page
-      if (state.page > 0) {
-        // Go back to previous page and remove last answer if coming from a question page
-        if (state.quizStarted && state.page <= QUIZ_CONFIG.introPages.length + QUIZ_CONFIG.questions.length && state.page > QUIZ_CONFIG.introPages.length) {
-          state.answers.pop();
-        }
-        // Reset result/thank you state if backing up from those pages
-        if (state.showResult && !state.completed) {
-          state.showResult = false;
-        }
-        if (state.completed) {
-          state.completed = false;
-          state.showResult = true;
-        }
-        state.page--;
-        render();
+  if (button) $("#" + button.id).onclick = button.onClick;
+  if (showBack) setupBackBtn();
+}
+
+// Questions: background, centered card, answer buttons, next & back at bottom left
+function renderQuestionCardPage(q, qIdx, pageIdx) {
+  app.innerHTML = `
+    <div class="fullscreen-bg" style="background-image:url('${q.bg}');"></div>
+    <div class="question-card">
+      <form id="questionForm" autocomplete="off">
+        <div class="answers">
+          ${q.answers.map((a, i) =>
+            `<label class="answer-radio">
+              <input type="radio" name="answer" value="${i}" ${i===0 ? '' : ''} />
+              <span>${a.text}</span>
+            </label>`
+          ).join("")}
+        </div>
+        <button class="main-btn" id="nextQuestionBtn" type="submit" disabled>Next</button>
+      </form>
+    </div>
+    <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
+  `;
+
+  // Enable next only when an answer is selected
+  const form = $("#questionForm");
+  const nextBtn = $("#nextQuestionBtn");
+  form.answer && form.answer.forEach
+    ? form.answer.forEach(radio =>
+        radio.onchange = () => { nextBtn.disabled = !form.answer.value; })
+    : (form.answer.onchange = () => { nextBtn.disabled = !form.answer.value; });
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const selected = (form.answer && form.answer.value) || null;
+    if (selected !== null) {
+      state.answers[qIdx] = q.answers[selected].result;
+      state.page++;
+      render();
+    }
+  };
+
+  setupBackBtn();
+}
+
+// Back Button for all but cover
+function setupBackBtn() {
+  const btn = $("#backBtn");
+  if (!btn) return;
+  btn.onclick = () => {
+    // Go back to previous page and remove last answer if coming from a question page
+    if (state.page > 0) {
+      // Handle backing up from question pages
+      const totalIntro = QUIZ_CONFIG.introPages.length;
+      if (
+        state.quizStarted &&
+        state.page <= totalIntro + QUIZ_CONFIG.questions.length &&
+        state.page > totalIntro
+      ) {
+        state.answers.pop();
       }
-    };
-  }
+      // Reset result/thank you state if backing up from those pages
+      if (state.showResult && !state.completed) {
+        state.showResult = false;
+      }
+      if (state.completed) {
+        state.completed = false;
+        state.showResult = true;
+      }
+      state.page--;
+      render();
+    }
+  };
 }
 
 render();
