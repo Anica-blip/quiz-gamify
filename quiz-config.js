@@ -53,6 +53,3 @@ const QUIZ_CONFIG = {
     }
   },
   thankYou: {
-    bg: "static/6.png"
-  }
-};
