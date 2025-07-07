@@ -7,13 +7,13 @@ const QUIZ_CONFIG = {
     },
     {
       type: "info",
-      bg: "static/4.png", // changed from 2.png to 4.png
+      bg: "static/2.png",
       btn: { label: "Start Quiz", action: "next" }
     }
   ],
   questions: [
     {
-      bg: "static/3.png",
+      bg: "static/3.png", // PAGE 3 for Q1
       question: "Which best describes your approach?",
       answers: [
         { text: "Analytical", result: "A" },
@@ -22,7 +22,7 @@ const QUIZ_CONFIG = {
       ]
     },
     {
-      bg: "static/3.png",
+      bg: "static/3.png", // PAGE 3 used again for Q2
       question: "What motivates you most?",
       answers: [
         { text: "Achievement", result: "A" },
@@ -32,23 +32,23 @@ const QUIZ_CONFIG = {
     }
   ],
   getResults: {
-    bg: "static/5.png", // now uses 5.png as background
+    bg: "static/3.png", // PAGE 3 for get results prompt
     btn: { label: "Get Your Results", action: "showResult" }
   },
   resultPages: {
     "A": {
-      bg: "static/4.png", // result page uses 4.png, no extra text
-      resultText: "", // no text, just button
+      bg: "static/3.png", // PAGE 3 for results page
+      resultText: "You are Analytical!",
       btn: { label: "Finish", action: "thankYou" }
     },
     "B": {
-      bg: "static/4.png",
-      resultText: "",
+      bg: "static/3.png",
+      resultText: "You are Bold!",
       btn: { label: "Finish", action: "thankYou" }
     },
     "C": {
-      bg: "static/4.png",
-      resultText: "",
+      bg: "static/3.png",
+      resultText: "You are Creative!",
       btn: { label: "Finish", action: "thankYou" }
     }
   },
