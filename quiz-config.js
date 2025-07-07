@@ -15,18 +15,20 @@ const QUIZ_CONFIG = {
   questions: [
     {
       bg: "static/3.png",
+      question: "Which best describes your approach?",
       answers: [
-        { text: "A", result: "A" },
-        { text: "B", result: "B" },
-        { text: "C", result: "C" }
+        { text: "Analytical", result: "A" },
+        { text: "Bold", result: "B" },
+        { text: "Creative", result: "C" }
       ]
     },
     {
       bg: "static/4.png",
+      question: "What motivates you most?",
       answers: [
-        { text: "A", result: "A" },
-        { text: "B", result: "B" },
-        { text: "C", result: "C" }
+        { text: "Achievement", result: "A" },
+        { text: "Adventure", result: "B" },
+        { text: "Collaboration", result: "C" }
       ]
     }
   ],
