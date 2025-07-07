@@ -33,8 +33,7 @@ html, body {
 .cover-btn-in-img {
   position: absolute;
   left: 50%;
-  /* Move button to 4 lines down (approx 4em) */
-  top: calc(0% + 4em);
+  top: calc(100% + 4em);
   transform: translate(-50%, 0);
   z-index: 2;
 }
@@ -91,7 +90,6 @@ html, body {
 .question-vertical {
   position: absolute;
   left: 0; right: 0;
-  /* Move question down by 2 lines (approx 2em) */
   top: calc(14vh + 2em);
   width: 100vw;
   z-index: 2;
@@ -222,8 +220,8 @@ html, body {
     bottom: 1.2em;
   }
   .question-vertical {
-    /* Move question down by 2 lines on mobile as well */
-    top: calc(7.5vh + 2em);
+    /* Move question down by 3 lines on mobile as requested */
+    top: calc(7.5vh + 3em);
   }
   .result-vertical {
     top: 14vh;
