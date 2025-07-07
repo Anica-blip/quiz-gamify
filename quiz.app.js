@@ -5,6 +5,7 @@ let state = {
   page: 0,
   answers: [],
   quizStarted: false,
+  showGetResults: false,
   showResult: false,
   completed: false,
   resultKey: null
@@ -19,7 +20,7 @@ function render() {
   // COVER PAGE (card style, scrollable if needed)
   if (pageIdx === 0) {
     const p = QUIZ_CONFIG.introPages[0];
-    renderCardImageCover(p);
+    renderCoverPage(p);
     return;
   }
 
@@ -42,43 +43,44 @@ function render() {
   if (state.quizStarted && pageIdx - totalIntro < totalQ) {
     const qIdx = pageIdx - totalIntro;
     const q = QUIZ_CONFIG.questions[qIdx];
-    renderQuestionPage(q, qIdx, pageIdx);
+    renderQuestionPage(q, qIdx);
     return;
   }
 
-  // RESULT PAGE: background, button at bottom, back button bottom left
-  if (state.quizStarted && !state.completed && state.showResult) {
-    const tally = {};
-    state.answers.forEach(ans => {
-      tally[ans] = (tally[ans] || 0) + 1;
-    });
-    let top = Object.keys(tally).reduce(
-      (a, b) => (tally[a] >= tally[b] ? a : b)
-    );
-    state.resultKey = top;
-    const result = QUIZ_CONFIG.results[top] || {};
+  // GET RESULTS PAGE: after final question, before result is shown
+  if (state.quizStarted && state.showGetResults) {
+    const getRes = QUIZ_CONFIG.getResults;
     renderFullscreenBgPage({
-      bg: result.bg,
-      button: result.btn
-        ? { label: result.btn.label, id: "finishBtn", onClick: () => {
-            state.completed = true;
-            state.page++;
-            render();
-          } }
-        : null,
+      bg: getRes.bg,
+      button: getRes.btn ? {
+        label: getRes.btn.label,
+        id: "getResultsBtn",
+        onClick: () => {
+          state.showGetResults = false;
+          state.showResult = true;
+          render();
+        }
+      } : null,
       showBack: true
     });
     return;
   }
 
-  // ADVANCE TO RESULT PAGE
-  if (
-    state.quizStarted &&
-    pageIdx - totalIntro === totalQ &&
-    !state.showResult
-  ) {
-    state.showResult = true;
-    render();
+  // RESULT PAGE: background, result text, button at bottom, back button bottom left
+  if (state.quizStarted && state.showResult && !state.completed) {
+    // Calculate resultKey if not yet set
+    if (!state.resultKey) {
+      const tally = {};
+      state.answers.forEach(ans => {
+        tally[ans] = (tally[ans] || 0) + 1;
+      });
+      let top = Object.keys(tally).reduce(
+        (a, b) => (tally[a] >= tally[b] ? a : b)
+      );
+      state.resultKey = top;
+    }
+    const res = QUIZ_CONFIG.resultPages[state.resultKey] || {};
+    renderResultPage(res);
     return;
   }
 
@@ -90,7 +92,7 @@ function render() {
 }
 
 // Cover: card style, scrollable
-function renderCardImageCover(p) {
+function renderCoverPage(p) {
   app.innerHTML = `
     <div class="cover-outer">
       <div class="cover-wrapper">
@@ -105,7 +107,7 @@ function renderCardImageCover(p) {
   };
 }
 
-// Info, result, thank you: full background, button at bottom, back at bottom left if needed
+// Info, get results, thank you: full background, button at bottom, back at bottom left if needed
 function renderFullscreenBgPage({ bg, button, showBack }) {
   app.innerHTML = `
     <div class="fullscreen-bg" style="background-image:url('${bg}');"></div>
@@ -117,7 +119,12 @@ function renderFullscreenBgPage({ bg, button, showBack }) {
 }
 
 // Questions: background, question text and transparent answer buttons, next & back at bottom left
-function renderQuestionPage(q, qIdx, pageIdx) {
+function renderQuestionPage(q, qIdx) {
+  // Restore previously selected answer if navigating back
+  let selected = state.answers[qIdx] !== undefined
+    ? q.answers.findIndex(a => a.result === state.answers[qIdx])
+    : null;
+
   app.innerHTML = `
     <div class="fullscreen-bg" style="background-image:url('${q.bg}');"></div>
     <div class="question-vertical">
@@ -125,34 +132,60 @@ function renderQuestionPage(q, qIdx, pageIdx) {
       <form id="questionForm" autocomplete="off" class="answers-form">
         <div class="answers">
           ${q.answers.map((a, i) =>
-            `<button type="button" class="answer-btn" data-idx="${i}">${a.text}</button>`
+            `<button type="button" class="answer-btn${selected === i ? " selected" : ""}" data-idx="${i}">${a.text}</button>`
           ).join("")}
         </div>
       </form>
     </div>
-    <div class="fullscreen-bottom"><button class="main-btn" id="nextQuestionBtn" type="button" disabled>Next</button></div>
+    <div class="fullscreen-bottom"><button class="main-btn" id="nextQuestionBtn" type="button" ${selected === null ? "disabled" : ""}>Next</button></div>
     <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
   `;
 
-  let selected = null;
+  let currentSelected = selected;
   const answerBtns = document.querySelectorAll('.answer-btn');
   const nextBtn = $("#nextQuestionBtn");
+
   answerBtns.forEach((btn, i) => {
     btn.onclick = () => {
       answerBtns.forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
-      selected = i;
+      currentSelected = i;
       nextBtn.disabled = false;
     };
   });
+
   nextBtn.onclick = () => {
-    if (selected !== null) {
-      state.answers[qIdx] = q.answers[selected].result;
-      state.page++;
+    if (currentSelected !== null) {
+      state.answers[qIdx] = q.answers[currentSelected].result;
+      // If last question, go to get results page, otherwise next question
+      if (qIdx === QUIZ_CONFIG.questions.length - 1) {
+        state.showGetResults = true;
+        state.page++;
+      } else {
+        state.page++;
+      }
       render();
     }
   };
 
+  setupBackBtn();
+}
+
+// Result page: show result text, button at bottom, back at bottom left
+function renderResultPage(res) {
+  app.innerHTML = `
+    <div class="fullscreen-bg" style="background-image:url('${res.bg}');"></div>
+    <div class="result-vertical">
+      <div class="result-text">${res.resultText || ""}</div>
+    </div>
+    <div class="fullscreen-bottom"><button class="main-btn" id="finishBtn">${res.btn.label}</button></div>
+    <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
+  `;
+  $("#finishBtn").onclick = () => {
+    state.completed = true;
+    state.page++;
+    render();
+  };
   setupBackBtn();
 }
 
@@ -174,10 +207,14 @@ function setupBackBtn() {
       // Reset result/thank you state if backing up from those pages
       if (state.showResult && !state.completed) {
         state.showResult = false;
+        state.resultKey = null;
       }
       if (state.completed) {
         state.completed = false;
         state.showResult = true;
+      }
+      if (state.showGetResults) {
+        state.showGetResults = false;
       }
       state.page--;
       render();
