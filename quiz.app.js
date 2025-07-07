@@ -2,7 +2,7 @@ const $ = (sel) => document.querySelector(sel);
 const app = $("#app");
 
 let state = {
-  page: 0, // index in introPages + questions + (endPrompt) + results + thankyou
+  page: 0,
   answers: [],
   quizStarted: false,
   showEndPrompt: false,
@@ -17,7 +17,7 @@ function render() {
   const totalIntro = QUIZ_CONFIG.introPages.length;
   const totalQ = QUIZ_CONFIG.questions.length;
 
-  // --- Cover/Intro Pages ---
+  // Intro Pages
   if (!state.quizStarted && pageIdx < totalIntro) {
     const p = QUIZ_CONFIG.introPages[pageIdx];
     renderPage({
@@ -38,7 +38,7 @@ function render() {
     return;
   }
 
-  // --- Quiz Questions ---
+  // Quiz Questions
   if (state.quizStarted && pageIdx - totalIntro < totalQ) {
     const qIdx = pageIdx - totalIntro;
     const q = QUIZ_CONFIG.questions[qIdx];
@@ -46,13 +46,13 @@ function render() {
     return;
   }
 
-  // --- End Prompt ("Get Your Results") ---
+  // End Prompt
   if (
     state.quizStarted &&
     !state.showEndPrompt &&
     pageIdx - totalIntro === totalQ
   ) {
-    state.showEndPrompt = true; // Prevents multiple entry
+    state.showEndPrompt = true;
     const ep = QUIZ_CONFIG.endPrompt;
     renderPage({
       bg: ep.bg,
@@ -71,14 +71,13 @@ function render() {
     return;
   }
 
-  // --- Results Page ---
+  // Results Page
   if (
     state.quizStarted &&
     state.showResult &&
     !state.completed &&
     pageIdx - totalIntro === totalQ
   ) {
-    // Calculate score/result
     const tally = {};
     state.answers.forEach(ans => {
       tally[ans] = (tally[ans] || 0) + 1;
@@ -93,9 +92,9 @@ function render() {
       img: ""
     };
     renderPage({
-      bg: result.bg || "static/5.png",
+      bg: result.bg || "",
       logo: result.logo || "",
-      img: result.img || "static/5.png",
+      img: result.img || "",
       title: result.title,
       desc: result.desc,
       btn: {
@@ -110,7 +109,7 @@ function render() {
     return;
   }
 
-  // --- Thank You Page ---
+  // Thank You Page
   if (state.completed) {
     const t = QUIZ_CONFIG.thankYou;
     renderPage({
@@ -134,9 +133,9 @@ function renderPage({ bg, logo, img, title, desc, btn }) {
     ${bg ? `<img class="bg-img" src="${bg}" alt="background"/>` : ""}
     <div class="quiz-card">
       ${logo ? `<img class="quiz-logo" src="${logo}" alt="logo"/>` : ""}
+      ${img ? `<img class="quiz-img" src="${img}" alt="img"/>` : ""}
       ${title ? `<div class="quiz-title">${title}</div>` : ""}
       ${desc ? `<div class="quiz-desc">${desc}</div>` : ""}
-      ${img ? `<img class="quiz-img" src="${img}" alt="img"/>` : ""}
       ${
         btn
           ? `<button class="start-btn" id="nextBtn">${btn.text}</button>`
@@ -152,13 +151,12 @@ function renderQuestion(q, idx) {
     ${q.bg ? `<img class="bg-img" src="${q.bg}" alt="background"/>` : ""}
     <div class="quiz-card">
       ${q.logo ? `<img class="quiz-logo" src="${q.logo}" alt="logo"/>` : ""}
-      <div class="quiz-title">${q.question}</div>
       ${q.img ? `<img class="quiz-img" src="${q.img}" alt="img"/>` : ""}
+      <div class="quiz-title">${q.question}</div>
       <div id="answers"></div>
       <button class="next-btn" id="nextBtn" disabled>Next</button>
     </div>
   `;
-  // Render answers
   const answersDiv = $("#answers");
   let selectedIdx = null;
   q.answers.forEach((a, i) => {
