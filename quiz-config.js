@@ -7,7 +7,7 @@ const QUIZ_CONFIG = {
     },
     {
       type: "info",
-      bg: "static/2.png",
+      bg: "static/4.png", // <- changed from 2.png to 4.png
       btn: { label: "Start Quiz", action: "next" }
     }
   ],
@@ -32,23 +32,23 @@ const QUIZ_CONFIG = {
     }
   ],
   getResults: {
-    bg: "static/4.png", // Results background for "Get Results" button page
+    bg: "static/5.png", // <- now uses 5.png as background
     btn: { label: "Get Your Results", action: "showResult" }
   },
   resultPages: {
     "A": {
-      bg: "static/4.png", // Results background
-      resultText: "You are Analytical!",
+      bg: "static/4.png", // result page uses 4.png, no extra text
+      resultText: "", // no text, just button
       btn: { label: "Finish", action: "thankYou" }
     },
     "B": {
       bg: "static/4.png",
-      resultText: "You are Bold!",
+      resultText: "",
       btn: { label: "Finish", action: "thankYou" }
     },
     "C": {
       bg: "static/4.png",
-      resultText: "You are Creative!",
+      resultText: "",
       btn: { label: "Finish", action: "thankYou" }
     }
   },
