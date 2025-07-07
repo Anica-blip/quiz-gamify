@@ -17,10 +17,21 @@ function render() {
   const totalIntro = QUIZ_CONFIG.introPages.length;
   const totalQ = QUIZ_CONFIG.questions.length;
 
-  // COVER PAGE (card style, scrollable if needed)
+  // COVER PAGE (card style, button inside image)
   if (pageIdx === 0) {
     const p = QUIZ_CONFIG.introPages[0];
-    renderCoverPage(p);
+    app.innerHTML = `
+      <div class="cover-outer">
+        <div class="cover-image-container">
+          <img class="cover-img" src="${p.img}" alt="cover"/>
+          ${p.btn ? `<button class="main-btn cover-btn-in-img" id="nextBtn">${p.btn.label}</button>` : ""}
+        </div>
+      </div>
+    `;
+    if (p.btn) $("#nextBtn").onclick = () => {
+      state.page++;
+      render();
+    };
     return;
   }
 
@@ -39,7 +50,7 @@ function render() {
     return;
   }
 
-  // QUESTION PAGES: background, question text and transparent answer buttons, next & back
+  // QUESTION PAGES
   if (state.quizStarted && pageIdx - totalIntro < totalQ) {
     const qIdx = pageIdx - totalIntro;
     const q = QUIZ_CONFIG.questions[qIdx];
@@ -47,7 +58,7 @@ function render() {
     return;
   }
 
-  // GET RESULTS PAGE: after final question, before result is shown
+  // GET RESULTS PAGE
   if (state.quizStarted && state.showGetResults) {
     const getRes = QUIZ_CONFIG.getResults;
     renderFullscreenBgPage({
@@ -66,9 +77,8 @@ function render() {
     return;
   }
 
-  // RESULT PAGE: background, result text, button at bottom, back button bottom left
+  // RESULT PAGE
   if (state.quizStarted && state.showResult && !state.completed) {
-    // Calculate resultKey if not yet set
     if (!state.resultKey) {
       const tally = {};
       state.answers.forEach(ans => {
@@ -84,30 +94,13 @@ function render() {
     return;
   }
 
-  // THANK YOU PAGE: background, back at bottom left
+  // THANK YOU PAGE
   if (state.completed) {
     const t = QUIZ_CONFIG.thankYou;
     renderFullscreenBgPage({ bg: t.bg, button: null, showBack: true });
   }
 }
 
-// Cover: card style, scrollable
-function renderCoverPage(p) {
-  app.innerHTML = `
-    <div class="cover-outer">
-      <div class="cover-wrapper">
-        <img class="cover-img" src="${p.img}" alt="cover"/>
-      </div>
-      ${p.btn ? `<button class="main-btn" id="nextBtn">${p.btn.label}</button>` : ""}
-    </div>
-  `;
-  if (p.btn) $("#nextBtn").onclick = () => {
-    state.page++;
-    render();
-  };
-}
-
-// Info, get results, thank you: full background, button at bottom, back at bottom left if needed
 function renderFullscreenBgPage({ bg, button, showBack }) {
   app.innerHTML = `
     <div class="fullscreen-bg" style="background-image:url('${bg}');"></div>
@@ -118,9 +111,7 @@ function renderFullscreenBgPage({ bg, button, showBack }) {
   if (showBack) setupBackBtn();
 }
 
-// Questions: background, question text and transparent answer buttons, next & back at bottom left
 function renderQuestionPage(q, qIdx) {
-  // Restore previously selected answer if navigating back
   let selected = state.answers[qIdx] !== undefined
     ? q.answers.findIndex(a => a.result === state.answers[qIdx])
     : null;
@@ -157,7 +148,6 @@ function renderQuestionPage(q, qIdx) {
   nextBtn.onclick = () => {
     if (currentSelected !== null) {
       state.answers[qIdx] = q.answers[currentSelected].result;
-      // If last question, go to get results page, otherwise next question
       if (qIdx === QUIZ_CONFIG.questions.length - 1) {
         state.showGetResults = true;
         state.page++;
@@ -171,7 +161,6 @@ function renderQuestionPage(q, qIdx) {
   setupBackBtn();
 }
 
-// Result page: show result text, button at bottom, back at bottom left
 function renderResultPage(res) {
   app.innerHTML = `
     <div class="fullscreen-bg" style="background-image:url('${res.bg}');"></div>
@@ -189,14 +178,12 @@ function renderResultPage(res) {
   setupBackBtn();
 }
 
-// Back Button for all but cover
 function setupBackBtn() {
   const btn = $("#backBtn");
   if (!btn) return;
   btn.onclick = () => {
     const totalIntro = QUIZ_CONFIG.introPages.length;
     if (state.page > 0) {
-      // Remove last answer if coming from a question page
       if (
         state.quizStarted &&
         state.page <= totalIntro + QUIZ_CONFIG.questions.length &&
@@ -204,7 +191,6 @@ function setupBackBtn() {
       ) {
         state.answers.pop();
       }
-      // Reset result/thank you state if backing up from those pages
       if (state.showResult && !state.completed) {
         state.showResult = false;
         state.resultKey = null;
@@ -220,3 +206,6 @@ function setupBackBtn() {
       render();
     }
   };
+}
+
+render();
