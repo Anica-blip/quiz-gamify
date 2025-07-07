@@ -7,7 +7,7 @@ const QUIZ_CONFIG = {
     },
     {
       type: "info",
-      bg: "static/4.png", // <- changed from 2.png to 4.png
+      bg: "static/4.png", // changed from 2.png to 4.png
       btn: { label: "Start Quiz", action: "next" }
     }
   ],
@@ -32,7 +32,7 @@ const QUIZ_CONFIG = {
     }
   ],
   getResults: {
-    bg: "static/5.png", // <- now uses 5.png as background
+    bg: "static/5.png", // now uses 5.png as background
     btn: { label: "Get Your Results", action: "showResult" }
   },
   resultPages: {
