@@ -1,15 +1,18 @@
 // === QUIZ APP LOGIC ===
-// Renders the quiz using the config above.
+// Renders the quiz using the config above, with explicit step for "Get Your Results" and
+// a button on results page to reach the final Thank You page.
 
 const $ = (sel) => document.querySelector(sel);
 const app = $("#app");
 
 let state = {
-  page: 0, // index in introPages + questions + results
+  page: 0, // index in introPages + questions + (endPrompt) + results + thankyou
   answers: [],
   quizStarted: false,
+  showEndPrompt: false,
   showResult: false,
-  completed: false
+  completed: false,
+  resultKey: null
 };
 
 function render() {
@@ -47,30 +50,60 @@ function render() {
     return;
   }
 
-  // --- Result Page ---
-  if (state.quizStarted && !state.completed && pageIdx - totalIntro === totalQ) {
-    // Score calculation
+  // --- End Prompt ("Get Your Results") ---
+  if (
+    state.quizStarted &&
+    !state.showEndPrompt &&
+    pageIdx - totalIntro === totalQ
+  ) {
+    state.showEndPrompt = true; // Prevents multiple entry
+    const ep = QUIZ_CONFIG.endPrompt;
+    renderPage({
+      bg: ep.bg,
+      logo: ep.logo,
+      img: ep.img,
+      title: ep.title,
+      desc: ep.desc,
+      btn: {
+        text: ep.btn?.label || "Get Your Results",
+        action: () => {
+          state.showResult = true;
+          render();
+        }
+      }
+    });
+    return;
+  }
+
+  // --- Results Page ---
+  if (
+    state.quizStarted &&
+    state.showResult &&
+    !state.completed &&
+    pageIdx - totalIntro === totalQ
+  ) {
+    // Calculate score/result
     const tally = {};
     state.answers.forEach(ans => {
       tally[ans] = (tally[ans] || 0) + 1;
     });
-    // Find the result with the highest score
     let top = Object.keys(tally).reduce(
       (a, b) => (tally[a] >= tally[b] ? a : b)
     );
+    state.resultKey = top;
     const result = QUIZ_CONFIG.results[top] || {
       title: "Result",
       desc: "Try again!",
       img: ""
     };
     renderPage({
-      bg: result.bg || "",
+      bg: result.bg || "5.png",
       logo: result.logo || "",
-      img: result.img,
+      img: result.img || "5.png",
       title: result.title,
       desc: result.desc,
       btn: {
-        text: "See Next",
+        text: result.btn?.label || "Continue",
         action: () => {
           state.completed = true;
           state.page++;
@@ -90,68 +123,5 @@ function render() {
       img: t.img,
       title: t.title,
       desc: t.desc,
-      btn: t.cta
-        ? {
-            text: t.cta.label,
-            action: () => window.open(t.cta.url, "_blank")
-          }
-        : null
-    });
-  }
-}
+      btn: t
 
-function renderPage({ bg, logo, img, title, desc, btn }) {
-  app.innerHTML = `
-    ${bg ? `<img class="bg-img" src="${bg}" alt="background"/>` : ""}
-    <div class="quiz-card">
-      ${logo ? `<img class="quiz-logo" src="${logo}" alt="logo"/>` : ""}
-      ${title ? `<div class="quiz-title">${title}</div>` : ""}
-      ${desc ? `<div class="quiz-desc">${desc}</div>` : ""}
-      ${img ? `<img class="quiz-img" src="${img}" alt="img"/>` : ""}
-      ${
-        btn
-          ? `<button class="start-btn" id="nextBtn">${btn.text}</button>`
-          : ""
-      }
-    </div>
-  `;
-  if (btn) $("#nextBtn").onclick = btn.action;
-}
-
-function renderQuestion(q, idx) {
-  app.innerHTML = `
-    ${q.bg ? `<img class="bg-img" src="${q.bg}" alt="background"/>` : ""}
-    <div class="quiz-card">
-      ${q.logo ? `<img class="quiz-logo" src="${q.logo}" alt="logo"/>` : ""}
-      <div class="quiz-title">${q.question}</div>
-      ${q.img ? `<img class="quiz-img" src="${q.img}" alt="img"/>` : ""}
-      <div id="answers"></div>
-      <button class="next-btn" id="nextBtn" disabled>Next</button>
-    </div>
-  `;
-  // Render answers
-  const answersDiv = $("#answers");
-  let selectedIdx = null;
-  q.answers.forEach((a, i) => {
-    const btn = document.createElement("button");
-    btn.className = "answer-btn";
-    btn.textContent = a.text;
-    btn.onclick = () => {
-      selectedIdx = i;
-      Array.from(answersDiv.children).forEach((b, j) =>
-        b.classList.toggle("selected", j === i)
-      );
-      $("#nextBtn").disabled = false;
-    };
-    answersDiv.appendChild(btn);
-  });
-  $("#nextBtn").onclick = () => {
-    if (selectedIdx !== null) {
-      state.answers.push(q.answers[selectedIdx].result);
-      state.page++;
-      render();
-    }
-  };
-}
-
-render();
