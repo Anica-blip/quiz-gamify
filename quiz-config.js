@@ -3,93 +3,48 @@ const QUIZ_CONFIG = {
     {
       type: "cover",
       bg: "",
-      logo: "",
-      title: "Welcome to the Quiz!",
-      desc: "Test your personality and see your result.",
-      img: "static/1.png"
+      img: "static/1.png", // Page 1: Cover image
+      btn: { label: "Enter", action: "next" }
     },
     {
       type: "info",
-      bg: "",
-      logo: "",
-      title: "How it works",
-      desc: "Answer a few questions and get a surprise at the end.",
-      img: "static/2.png"
+      bg: "static/2.png", // Page 2: How it works (full background)
+      btn: { label: "Start Quiz", action: "next" }
     }
   ],
   questions: [
     {
-      bg: "",
-      logo: "",
-      img: "static/3.png",
-      question: "Which best describes your approach?",
+      bg: "static/3.png", // Page 3: Question 1
       answers: [
-        { text: "A - Analytical", result: "A" },
-        { text: "B - Bold", result: "B" },
-        { text: "C - Creative", result: "C" }
+        { text: "A", result: "A" },
+        { text: "B", result: "B" },
+        { text: "C", result: "C" }
       ]
     },
     {
-      bg: "",
-      logo: "",
-      img: "static/3.png",
-      question: "What motivates you most?",
+      bg: "static/4.png", // Page 4: Question 2
       answers: [
-        { text: "A - Achievement", result: "A" },
-        { text: "B - Adventure", result: "B" },
-        { text: "C - Collaboration", result: "C" }
+        { text: "A", result: "A" },
+        { text: "B", result: "B" },
+        { text: "C", result: "C" }
       ]
     }
   ],
-  endPrompt: {
-    bg: "",
-    logo: "",
-    title: "Ready for your results?",
-    desc: "",
-    btn: {
-      label: "Get Your Results",
-      action: "showResults"
-    },
-    img: "static/4.png"
-  },
   results: {
     "A": {
-      title: "You are Analytical!",
-      desc: "You excel at breaking down problems and finding logical solutions.",
-      img: "static/5.png",
-      btn: {
-        label: "Continue",
-        action: "thankYou"
-      }
+      bg: "static/5.png", // Page 5: Result A
+      btn: { label: "Finish", action: "thankYou" }
     },
     "B": {
-      title: "You are Bold!",
-      desc: "You love to take risks and lead the way.",
-      img: "static/5.png",
-      btn: {
-        label: "Continue",
-        action: "thankYou"
-      }
+      bg: "static/5.png", // Page 5: Result B (using same image as A; change if needed)
+      btn: { label: "Finish", action: "thankYou" }
     },
     "C": {
-      title: "You are Creative!",
-      desc: "You think outside the box and inspire others with your ideas.",
-      img: "static/5.png",
-      btn: {
-        label: "Continue",
-        action: "thankYou"
-      }
+      bg: "static/5.png", // Page 5: Result C (using same image as A; change if needed)
+      btn: { label: "Finish", action: "thankYou" }
     }
   },
   thankYou: {
-    bg: "",
-    logo: "",
-    title: "Thank YOU!!",
-    desc: "Think it. Do it. Own it!",
-    cta: {
-      label: "Go Here!!",
-      url: "https://your-link.com"
-    },
-    img: "static/6.png"
+    bg: "static/6.png" // Page 6: Thank you
   }
 };
