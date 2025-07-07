@@ -17,26 +17,24 @@ function render() {
   const totalIntro = QUIZ_CONFIG.introPages.length;
   const totalQ = QUIZ_CONFIG.questions.length;
 
-  // COVER PAGE
+  // COVER PAGE (card style, scrollable if needed)
   if (pageIdx === 0) {
     const p = QUIZ_CONFIG.introPages[0];
     renderCoverPage(p);
     return;
   }
 
-  // INFO PAGE
+  // INFO PAGE: full background, button at bottom, back button bottom left
   if (pageIdx === 1) {
     const p = QUIZ_CONFIG.introPages[1];
     renderBgScrollPage({
       bg: p.bg,
       content: `
-        <div class="content-in-bg">
-          <div class="content-spacer"></div>
-          <div class="scroll-bottom">
-            <button class="main-btn" id="mainBtn">${p.btn.label}</button>
-          </div>
-          <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
+        <div class="content-spacer"></div>
+        <div class="scroll-bottom">
+          <button class="main-btn" id="mainBtn">${p.btn.label}</button>
         </div>
+        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
       `
     });
     $("#mainBtn").onclick = () => {
@@ -48,7 +46,7 @@ function render() {
     return;
   }
 
-  // QUESTION PAGES
+  // QUESTION PAGES: background, question text and transparent answer buttons, next & back
   if (state.quizStarted && pageIdx - totalIntro < totalQ) {
     const qIdx = pageIdx - totalIntro;
     const q = QUIZ_CONFIG.questions[qIdx];
@@ -56,19 +54,17 @@ function render() {
     return;
   }
 
-  // GET RESULTS PAGE
+  // GET RESULTS PAGE: after final question, before result is shown
   if (state.quizStarted && state.showGetResults) {
     const getRes = QUIZ_CONFIG.getResults;
     renderBgScrollPage({
       bg: getRes.bg,
       content: `
-        <div class="content-in-bg">
-          <div class="content-spacer"></div>
-          <div class="scroll-bottom">
-            <button class="main-btn" id="getResultsBtn">${getRes.btn.label}</button>
-          </div>
-          <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
+        <div class="content-spacer"></div>
+        <div class="scroll-bottom">
+          <button class="main-btn" id="getResultsBtn">${getRes.btn.label}</button>
         </div>
+        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
       `
     });
     $("#getResultsBtn").onclick = () => {
@@ -80,8 +76,9 @@ function render() {
     return;
   }
 
-  // RESULT PAGE
+  // RESULT PAGE: background, result text, button at bottom, back button bottom left
   if (state.quizStarted && state.showResult && !state.completed) {
+    // Calculate resultKey if not yet set
     if (!state.resultKey) {
       const tally = {};
       state.answers.forEach(ans => {
@@ -96,15 +93,13 @@ function render() {
     renderBgScrollPage({
       bg: res.bg,
       content: `
-        <div class="content-in-bg">
-          <div class="result-vertical">
-            <div class="result-text">${res.resultText || ""}</div>
-          </div>
-          <div class="scroll-bottom">
-            <button class="main-btn" id="finishBtn">${res.btn.label}</button>
-          </div>
-          <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
+        <div class="result-vertical">
+          <div class="result-text">${res.resultText || ""}</div>
         </div>
+        <div class="scroll-bottom">
+          <button class="main-btn" id="finishBtn">${res.btn.label}</button>
+        </div>
+        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
       `
     });
     $("#finishBtn").onclick = () => {
@@ -116,20 +111,19 @@ function render() {
     return;
   }
 
-  // THANK YOU PAGE
+  // THANK YOU PAGE: background, back at bottom left
   if (state.completed) {
     const t = QUIZ_CONFIG.thankYou;
     renderBgScrollPage({
       bg: t.bg,
-      content: `<div class="content-in-bg">
-        <div class="content-spacer"></div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
-      </div>`
+      content: `<div class="content-spacer"></div>
+        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>`
     });
     setupBackBtn();
   }
 }
 
+// Cover: card style, scrollable
 function renderCoverPage(p) {
   app.innerHTML = `
     <div class="cover-outer">
@@ -145,39 +139,39 @@ function renderCoverPage(p) {
   };
 }
 
+// Generic background scroll page with content
 function renderBgScrollPage({ bg, content }) {
   app.innerHTML = `
-    <div class="quiz-bg-container">
-      <div class="scroll-bg" style="background-image:url('${bg}');"></div>
+    <div class="scroll-bg" style="background-image:url('${bg}');"></div>
+    <div class="scroll-contents">
       ${content}
     </div>
   `;
 }
 
+// Questions: background, question text, transparent answer buttons, next & back at bottom left
 function renderQuestionPage(q, qIdx) {
   let selected = state.answers[qIdx] !== undefined
     ? q.answers.findIndex(a => a.result === state.answers[qIdx])
     : null;
 
   app.innerHTML = `
-    <div class="quiz-bg-container">
-      <div class="scroll-bg" style="background-image:url('${q.bg}');"></div>
-      <div class="content-in-bg">
-        <div class="question-vertical">
-          <div class="question-text">${q.question || ""}</div>
-          <form id="questionForm" autocomplete="off" class="answers-form">
-            <div class="answers">
-              ${q.answers.map((a, i) =>
-                `<button type="button" class="answer-btn${selected === i ? " selected" : ""}" data-idx="${i}">${a.text}</button>`
-              ).join("")}
-            </div>
-          </form>
-        </div>
-        <div class="scroll-bottom">
-          <button class="main-btn" id="nextQuestionBtn" type="button" ${selected === null ? "disabled" : ""}>Next</button>
-        </div>
-        <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
+    <div class="scroll-bg" style="background-image:url('${q.bg}');"></div>
+    <div class="scroll-contents">
+      <div class="question-vertical">
+        <div class="question-text">${q.question || ""}</div>
+        <form id="questionForm" autocomplete="off" class="answers-form">
+          <div class="answers">
+            ${q.answers.map((a, i) =>
+              `<button type="button" class="answer-btn${selected === i ? " selected" : ""}" data-idx="${i}">${a.text}</button>`
+            ).join("")}
+          </div>
+        </form>
       </div>
+      <div class="scroll-bottom">
+        <button class="main-btn" id="nextQuestionBtn" type="button" ${selected === null ? "disabled" : ""}>Next</button>
+      </div>
+      <button class="back-btn bottom" id="backBtn" title="Go Back">&#8592;</button>
     </div>
   `;
 
@@ -197,6 +191,7 @@ function renderQuestionPage(q, qIdx) {
   nextBtn.onclick = () => {
     if (currentSelected !== null) {
       state.answers[qIdx] = q.answers[currentSelected].result;
+      // If last question, go to get results page, otherwise next question
       if (qIdx === QUIZ_CONFIG.questions.length - 1) {
         state.showGetResults = true;
         state.page++;
@@ -210,12 +205,14 @@ function renderQuestionPage(q, qIdx) {
   setupBackBtn();
 }
 
+// Back Button for all but cover
 function setupBackBtn() {
   const btn = $("#backBtn");
   if (!btn) return;
   btn.onclick = () => {
     const totalIntro = QUIZ_CONFIG.introPages.length;
     if (state.page > 0) {
+      // Remove last answer if coming from a question page
       if (
         state.quizStarted &&
         state.page <= totalIntro + QUIZ_CONFIG.questions.length &&
@@ -223,6 +220,7 @@ function setupBackBtn() {
       ) {
         state.answers.pop();
       }
+      // Reset result/thank you state if backing up from those pages
       if (state.showResult && !state.completed) {
         state.showResult = false;
         state.resultKey = null;
