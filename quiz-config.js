@@ -2,7 +2,6 @@ const QUIZ_CONFIG = {
   introPages: [
     {
       type: "cover",
-      bg: "",
       img: "static/1.png",
       btn: { label: "Enter", action: "next" }
     },
@@ -32,17 +31,24 @@ const QUIZ_CONFIG = {
       ]
     }
   ],
-  results: {
+  getResults: {
+    bg: "static/5.png",
+    btn: { label: "Get Your Results", action: "showResult" }
+  },
+  resultPages: {
     "A": {
-      bg: "static/5.png",
+      bg: "static/5a.png",
+      resultText: "You are Analytical!",
       btn: { label: "Finish", action: "thankYou" }
     },
     "B": {
-      bg: "static/5.png",
+      bg: "static/5b.png",
+      resultText: "You are Bold!",
       btn: { label: "Finish", action: "thankYou" }
     },
     "C": {
-      bg: "static/5.png",
+      bg: "static/5c.png",
+      resultText: "You are Creative!",
       btn: { label: "Finish", action: "thankYou" }
     }
   },
