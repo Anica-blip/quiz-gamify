@@ -30,21 +30,6 @@ html, body {
   align-items: center;
   justify-content: flex-start;
 }
-.cover-btn-in-img {
-  position: absolute;
-  left: 50%;
-  top: calc(100% + 4em);
-  transform: translate(-50%, 0);
-  z-index: 2;
-}
-
-.cover-wrapper {
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 3em;
-}
 .cover-img {
   max-width: 370px;
   width: 94vw;
@@ -53,6 +38,26 @@ html, body {
   border-radius: 1.2em;
   box-shadow: 0 8px 32px 0 rgba(17, 8, 32, 0.23);
   position: relative;
+}
+
+.cover-btn-in-img {
+  position: absolute;
+  left: 50%;
+  /* Place the button about 80% down the image, in line with other pages' buttons */
+  top: 80%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  /* Optional: expand clickable area for mobile */
+  width: max-content;
+  min-width: 120px;
+}
+
+.cover-wrapper {
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 3em;
 }
 
 .main-btn {
@@ -219,8 +224,11 @@ html, body {
   .fullscreen-bottom {
     bottom: 1.2em;
   }
+  .cover-btn-in-img {
+    /* keep it at 80% on mobile as well */
+    top: 80%;
+  }
   .question-vertical {
-    /* Move question down by 3 lines on mobile as requested */
     top: calc(7.5vh + 3em);
   }
   .result-vertical {
