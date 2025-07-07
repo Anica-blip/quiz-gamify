@@ -2,26 +2,26 @@ const QUIZ_CONFIG = {
   introPages: [
     {
       type: "cover",
-      bg: "static/1.png",
+      bg: "",
       logo: "",
       title: "Welcome to the Quiz!",
       desc: "Test your personality and see your result.",
-      img: ""
+      img: "static/1.png"
     },
     {
       type: "info",
-      bg: "static/2.png",
+      bg: "",
       logo: "",
       title: "How it works",
       desc: "Answer a few questions and get a surprise at the end.",
-      img: ""
+      img: "static/2.png"
     }
   ],
   questions: [
     {
-      bg: "static/3.png",
+      bg: "",
       logo: "",
-      img: "",
+      img: "static/3.png",
       question: "Which best describes your approach?",
       answers: [
         { text: "A - Analytical", result: "A" },
@@ -30,9 +30,9 @@ const QUIZ_CONFIG = {
       ]
     },
     {
-      bg: "static/3.png",
+      bg: "",
       logo: "",
-      img: "",
+      img: "static/3.png",
       question: "What motivates you most?",
       answers: [
         { text: "A - Achievement", result: "A" },
@@ -42,14 +42,15 @@ const QUIZ_CONFIG = {
     }
   ],
   endPrompt: {
-    bg: "static/4.png",
+    bg: "",
     logo: "",
     title: "Ready for your results?",
     desc: "",
     btn: {
       label: "Get Your Results",
       action: "showResults"
-    }
+    },
+    img: "static/4.png"
   },
   results: {
     "A": {
@@ -81,7 +82,7 @@ const QUIZ_CONFIG = {
     }
   },
   thankYou: {
-    bg: "static/6.png",
+    bg: "",
     logo: "",
     title: "Thank YOU!!",
     desc: "Think it. Do it. Own it!",
@@ -89,6 +90,6 @@ const QUIZ_CONFIG = {
       label: "Go Here!!",
       url: "https://your-link.com"
     },
-    img: ""
+    img: "static/6.png"
   }
 };
