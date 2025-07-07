@@ -80,13 +80,11 @@ html, body {
   padding-bottom: 5em;
 }
 
-/* Spacer for layout flexibility */
 .content-spacer {
   height: 10vh;
   width: 100vw;
 }
 
-/* Question/Results vertical layout */
 .question-vertical, .result-vertical {
   width: 100vw;
   display: flex;
@@ -180,7 +178,6 @@ html, body {
   opacity: 1;
 }
 
-/* --- MOBILE RESPONSIVE --- */
 @media (max-width: 700px) {
   .cover-img {
     max-width: 98vw;
