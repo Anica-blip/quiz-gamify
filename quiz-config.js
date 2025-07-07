@@ -4,16 +4,16 @@ const QUIZ_CONFIG = {
       type: "cover",
       bg: "static/1.png",
       logo: "",
-      title: "",
-      desc: "",
+      title: "Welcome to the Quiz!",
+      desc: "Test your personality and see your result.",
       img: ""
     },
     {
       type: "info",
       bg: "static/2.png",
       logo: "",
-      title: "",
-      desc: "",
+      title: "How it works",
+      desc: "Answer a few questions and get a surprise at the end.",
       img: ""
     }
   ],
@@ -40,12 +40,11 @@ const QUIZ_CONFIG = {
         { text: "C - Collaboration", result: "C" }
       ]
     }
-    // Add more questions using static/3.png as needed
   ],
   endPrompt: {
     bg: "static/4.png",
     logo: "",
-    title: "",
+    title: "Ready for your results?",
     desc: "",
     btn: {
       label: "Get Your Results",
@@ -80,7 +79,6 @@ const QUIZ_CONFIG = {
         action: "thankYou"
       }
     }
-    // Add D, E as needed with the same structure
   },
   thankYou: {
     bg: "static/6.png",
