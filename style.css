@@ -6,9 +6,10 @@ html, body {
   font-family: 'Montserrat', Arial, sans-serif;
   background: #12093b;
   color: #fff;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* Make cover scrollable if needed */
 .cover-outer {
   min-height: 100vh;
   width: 100vw;
@@ -28,13 +29,14 @@ html, body {
   margin-top: 3em;
 }
 .cover-img {
-  max-width: 350px;
-  width: 90vw;
+  max-width: 370px;
+  width: 94vw;
   margin-bottom: 2em;
   display: block;
   border-radius: 1.2em;
   box-shadow: 0 8px 32px 0 rgba(17, 8, 32, 0.23);
 }
+
 .main-btn {
   background: #2196f3;
   color: #fff;
@@ -56,31 +58,21 @@ html, body {
   background: #1976d2;
 }
 
-/* Fullscreen BG for info, results, thank you, questions */
 .fullscreen-bg {
-  position: fixed;
+  position: absolute;
   left: 0; top: 0;
   width: 100vw; height: 100vh;
-  background-size: cover;
-  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
   z-index: 0;
+  background-color: #12093b;
 }
 
-/* Info, result, thank you, questions: button at bottom */
-.fullscreen-bottom {
-  position: fixed;
-  left: 0; right: 0; bottom: 3em;
-  width: 100vw;
-  z-index: 3;
-  display: flex;
-  justify-content: center;
-}
-
-/* Question vertical layout (no overlay card, just vertical stack) */
 .question-vertical {
   position: absolute;
   left: 0; right: 0;
-  top: 15vh;
+  top: 14vh;
   width: 100vw;
   z-index: 2;
   display: flex;
@@ -112,14 +104,13 @@ html, body {
   width: 100vw;
 }
 
-/* Transparent answer buttons */
 .answer-btn {
-  background: rgba(22,22,22,0.18);
+  background: rgba(22,22,22,0.16);
   color: #fff;
-  border: 2px solid rgba(255,255,255,0.28);
+  border: 2px solid rgba(255,255,255,0.25);
   border-radius: 1.1em;
   padding: 1.1em 3.2em;
-  font-size: 1.15em;
+  font-size: 1.12em;
   font-weight: 600;
   margin: 0.2em 0;
   cursor: pointer;
@@ -134,20 +125,50 @@ html, body {
 }
 .answer-btn.selected,
 .answer-btn:focus {
-  background: rgba(56, 168, 255, 0.21);
+  background: rgba(56, 168, 255, 0.18);
   color: #fff;
   border-color: #2196f3;
   transform: scale(1.04);
 }
 .answer-btn:active {
-  background: rgba(56, 168, 255, 0.35);
+  background: rgba(56, 168, 255, 0.32);
 }
 .answer-btn:not(.selected):hover {
   border-color: #61a5fa;
 }
 
+.result-vertical {
+  position: absolute;
+  left: 0; right: 0;
+  top: 20vh;
+  width: 100vw;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+.result-text {
+  font-size: 1.4em;
+  font-weight: bold;
+  margin-bottom: 2.1em;
+  text-align: center;
+  max-width: 90vw;
+  pointer-events: auto;
+  text-shadow: 0 4px 16px rgba(0,0,0,0.32), 0 2px 8px rgba(0,0,0,0.27);
+}
+
+.fullscreen-bottom {
+  position: absolute;
+  left: 0; right: 0; bottom: 3.5em;
+  width: 100vw;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+}
+
 .back-btn.bottom {
-  position: fixed;
+  position: absolute;
   left: 1.8em;
   bottom: 1.8em;
   top: unset;
@@ -171,17 +192,20 @@ html, body {
 
 @media (max-width: 600px) {
   .cover-img {
-    max-width: 95vw;
+    max-width: 98vw;
   }
   .main-btn {
     font-size: 1em;
-    padding: 1em 1.4em;
+    padding: 1em 1.1em;
   }
   .fullscreen-bottom {
     bottom: 1.2em;
   }
   .question-vertical {
     top: 7.5vh;
+  }
+  .result-vertical {
+    top: 14vh;
   }
   .back-btn.bottom {
     left: 0.7em;
