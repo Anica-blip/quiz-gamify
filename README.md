@@ -1,34 +1,47 @@
-# quiz-gamify
+# 3c-quiz
 
-A simple, customizable quiz app designed for the [3C Thread To Success](#) project. This app allows you to easily add your own backgrounds, branding, and quiz content for an engaging, gamified experience.
+A customizable quiz application with dynamic backgrounds and navigation, structured for easy integration with a future admin/editor app for quiz text management.
 
-## Features
+## File Structure
 
-- **Easy Customization**: Update backgrounds, logos, and character images to match your brand.
-- **Flexible Quiz Builder**: Add as many questions as you need, with 3–5 answer options per question.
-- **Image-Driven Pages**: Create visually rich cover, intro, quiz, results, and thank you screens—perfect for creative workflows.
-- **Canva-Friendly**: Build your page designs in Canva and upload them directly to the app for a seamless visual experience.
-- **Automatic Scoring**: Results are calculated based on the most selected answer category, offering instant feedback.
-- **Mobile-First & Accessible**: Responsive design for use on any device.
-- **Easy Deployment**: Quickly deploy your app to [Render](https://render.com/) or any static web host.
+- `index.html` – Main HTML entry.
+- `quiz-config.js` – Quiz configuration (to be dynamically updated in the future).
+- `quiz.app.js` – Main JavaScript logic for quiz rendering and navigation.
+- `style.css` – Styles for containers, overlays, and buttons.
+- `static/` – All static assets (background images, navigation buttons, etc.)
 
-## Getting Started
+## Background Images
 
-1. **Clone this repository** to your own workspace.
-2. **Add your images** for backgrounds, logos, and characters to the project folder.
-3. **Edit the `quiz-config.js` file** to update questions, answers, result descriptions, and image paths.
-4. **Open `index.html`** in your browser to test your quiz.
-5. **Deploy to Render** for easy, reliable hosting.
+- `1.png`  – Cover background image
+- `2.png`  – Quiz intro/title/description background
+- `3a.png` to `3h.png` – Question backgrounds (max 8)
+- `4.png`  – Pre-results description background
+- `5a.png` to `5d.png` – Results backgrounds (A/B/C/D)
+- `6.png`  – Thank you/exit background
 
-## Credits
+## Navigating Buttons
 
-- **Canva**: For supporting creative design workflows and making it easy to create branded quiz visuals.
-- **Render**: For simple, robust hosting and deployment.
+All navigation buttons are stored in `/static`.
+
+## Quiz Flow
+
+1. **Cover Page**: 1.png
+2. **Intro/Description**: 2.png
+3. **Questions**: 3a.png, 3b.png, ..., 3h.png (up to 8)
+   - Each page supports 3 or 4 answers.
+4. **Pre-Result Description**: 4.png
+5. **Results**:
+   - 5a.png – Result A
+   - 5b.png – Result B
+   - 5c.png – Result C
+   - 5d.png – Result D
+6. **Thank You**: 6.png
+
+## Next Steps
+
+- Refactor `quiz.app.js` to remove legacy Q&A buttons and ensure all navigation is via bottom buttons.
+- Prepare for admin/editor app (to manage quiz text).
 
 ---
 
-MIT License. See [LICENSE](LICENSE) for more information.
-
----
-
-Enjoy building and gamifying your quizzes!
+*This project is the template/operational version of the quiz app. All quiz content will eventually be managed via a separate admin/editor app for easy editing and updating.*
