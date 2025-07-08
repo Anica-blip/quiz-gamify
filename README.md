@@ -1,4 +1,4 @@
-# 3c-quiz
+# quiz-gamify
 
 A customizable quiz application with dynamic backgrounds and navigation, structured for easy integration with a future admin/editor app for quiz text management.
 
