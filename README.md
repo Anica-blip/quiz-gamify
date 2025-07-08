@@ -39,9 +39,7 @@ All navigation buttons are stored in `/static`.
 
 ## Next Steps
 
-- Refactor `quiz.app.js` to remove legacy Q&A buttons and ensure all navigation is via bottom buttons.
-- Prepare for admin/editor app (to manage quiz text).
-
+-leave this as main file, clone this to create admin/editor app for text to be added to app
 ---
 
 *This project is the template/operational version of the quiz app. All quiz content will eventually be managed via a separate admin/editor app for easy editing and updating.*
